@@ -2,7 +2,10 @@ import React, { useEffect, useRef, useState } from "react";
 import "../App.css";
 import * as faceapi from "face-api.js";
 function Faceapi() {
-  const [stopStream, setStopStream] = useState(false);
+  useEffect(() => {
+    alert("say hello to start");
+  }, []);
+  const [stopVideoStream, setStopVideoStream] = useState(false);
   const [userName, setUserName] = useState("");
   // greeting user
   const userGreeting = (userName) => {
@@ -43,6 +46,7 @@ function Faceapi() {
     faceapi.nets.faceRecognitionNet.loadFromUri("/models"),
     faceapi.nets.faceLandmark68Net.loadFromUri("/models"),
   ]).then(startWebcam);
+  // open webcam
   function startWebcam() {
     if (speech == "hello") {
       navigator.mediaDevices
@@ -56,7 +60,6 @@ function Faceapi() {
           console.error(error);
         });
     } else {
-      // alert("say hello to start");
       console.log("no speech detected");
     }
   }
@@ -80,7 +83,6 @@ function Faceapi() {
       })
     );
   }
-  let detectInterval;
   const handlePlay = async () => {
     const labeledFaceDescriptors = await getLabeledFaceDescriptions();
     const faceMatcher = new faceapi.FaceMatcher(labeledFaceDescriptors);
@@ -92,7 +94,7 @@ function Faceapi() {
       width: 750,
       height: 450,
     });
-    detectInterval = setInterval(async () => {
+    setInterval(async () => {
       const detections = await faceapi
         .detectAllFaces(videoRef.current)
         .withFaceLandmarks()
@@ -107,7 +109,6 @@ function Faceapi() {
         return faceMatcher.findBestMatch(d.descriptor);
       });
       results.forEach((result, i) => {
-        console.log(result);
         const box = resizedDetections[i].detection.box;
         const drawBox = new faceapi.draw.DrawBox(box, {
           label: result,
@@ -115,28 +116,30 @@ function Faceapi() {
         drawBox.draw(canvasRef.current);
         if (result.label != "unknown") {
           setUserName(result.label);
-          setStopStream(true);
+          setStopVideoStream(true);
         }
       });
     }, 1000);
   };
-  useEffect(() => {
-    if (stopStream) {
-      console.log("streammmmmmmmmm");
-      // navigator.mediaDevices
-      //   .getUserMedia({
-      //     video: true,
-      //   })
-      //   .then((streamData) => {
-      //     const tracks = streamData.getTracks();
-      //     tracks.forEach((track) => track.stop());
-      //     clearInterval(detectInterval);
-      //   });
+  // closing webcam
+  const closeWebcam = () => {
+    const stream = videoRef.current?.srcObject;
+    if (stream) {
+      const tracks = stream.getTracks();
+      tracks.forEach((track) => {
+        track.stop();
+      });
+      videoRef.current.srcObject = null;
       videoRef.current.style.display = "none";
       canvasRef.current.style.display = "none";
+    }
+  };
+  useEffect(() => {
+    if (stopVideoStream) {
+      closeWebcam();
       userGreeting(userName);
     }
-  }, [stopStream]);
+  }, [stopVideoStream]);
   return (
     <div className="myapp">
       <div className="appvide">
