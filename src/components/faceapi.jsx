@@ -2,11 +2,9 @@ import React, { useEffect, useRef, useState } from "react";
 import "../App.css";
 import * as faceapi from "face-api.js";
 function Faceapi() {
-  useEffect(() => {
-    alert("say hello to start");
-  }, []);
   const [stopVideoStream, setStopVideoStream] = useState(false);
   const [userName, setUserName] = useState("");
+  const [speech, setSpeech] = useState("");
   // greeting user
   const userGreeting = (userName) => {
     fetch("http://localhost:8000/gpt-user-greeting", {
@@ -19,36 +17,45 @@ function Faceapi() {
       }),
     })
       .then((response) => response.json())
-      // .then((data) => window.responsiveVoice.speak(data, "Arabic Female"))
       .then((data) => window.responsiveVoice.speak(data, "US English Male"))
       .catch((error) => console.error("Error:", error));
   };
   // catching record text
-  const [speech, setSpeech] = useState("");
-  const recognition = new (window.SpeechRecognition ||
-    window.webkitSpeechRecognition ||
-    window.mozSpeechRecognition ||
-    window.msSpeechRecognition)();
-  recognition.lang = "en-US";
-  recognition.interimResults = false;
-  recognition.maxAlternatives = 5;
-  recognition.start();
-  recognition.onresult = function (event) {
-    console.log("You said: ", event.results[0][0].transcript);
-    setSpeech(event.results[0][0].transcript);
-  };
+  useEffect(() => {
+    const recognition = new (window.SpeechRecognition ||
+      window.webkitSpeechRecognition ||
+      window.mozSpeechRecognition ||
+      window.msSpeechRecognition)();
+    recognition.lang = "en-US";
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 5;
+    recognition.start();
+    recognition.onresult = function (event) {
+      console.log("You said: ", event.results[0][0].transcript);
+      setSpeech(event.results[0][0].transcript);
+    };
+    recognition.onerror = (event) => {
+      console.error("Speech recognition error:", event.error);
+      recognition.stop();
+    };
+  }, []);
   // faceapi logic
   const videoRef = useRef(null);
   const canvasRef = useRef();
-
-  Promise.all([
-    faceapi.nets.ssdMobilenetv1.loadFromUri("/models"),
-    faceapi.nets.faceRecognitionNet.loadFromUri("/models"),
-    faceapi.nets.faceLandmark68Net.loadFromUri("/models"),
-  ]).then(startWebcam);
+  useEffect(() => {
+    Promise.all([
+      faceapi.nets.ssdMobilenetv1.loadFromUri("/models"),
+      faceapi.nets.faceRecognitionNet.loadFromUri("/models"),
+      faceapi.nets.faceLandmark68Net.loadFromUri("/models"),
+    ]).then(() => {
+      if (!stopVideoStream) {
+        startWebcam();
+      }
+    }, []);
+  });
   // open webcam
   function startWebcam() {
-    if (speech == "hello") {
+    if (speech === "hello") {
       navigator.mediaDevices
         .getUserMedia({
           video: true,
@@ -114,7 +121,7 @@ function Faceapi() {
           label: result,
         });
         drawBox.draw(canvasRef.current);
-        if (result.label != "unknown") {
+        if (result.label !== "unknown") {
           setUserName(result.label);
           setStopVideoStream(true);
         }
