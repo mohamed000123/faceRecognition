@@ -119,7 +119,7 @@ function Faceapi() {
           setStopVideoStream(true);
         }
       });
-    }, 1000);
+    }, 100);
   };
   // closing webcam
   const closeWebcam = () => {
