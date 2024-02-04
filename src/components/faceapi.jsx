@@ -1,49 +1,58 @@
 import React, { useEffect, useRef, useState } from "react";
 import "../App.css";
 import * as faceapi from "face-api.js";
+// routing
+import { useNavigate } from "react-router-dom";
 function Faceapi() {
   const [stopVideoStream, setStopVideoStream] = useState(false);
-  const [isMicOpen, setIsMicOpen] = useState(false);
   const [userName, setUserName] = useState("");
   const [speech, setSpeech] = useState("");
+  const navigate = useNavigate();
   // greeting user
   const userGreeting = (userName) => {
     window.responsiveVoice.speak(
       `hello ${userName} how can i assist you today ?`,
-      "US English Male"
+      "US English Female",
+      {
+        onend: () => {
+          // navigate("/VoiceChat");
+        },
+      }
     );
   };
   // catching record text
-  const recognition = new (window.SpeechRecognition ||
-    window.webkitSpeechRecognition ||
-    window.mozSpeechRecognition ||
-    window.msSpeechRecognition)();
-  recognition.lang = "en-US";
-  recognition.interimResults = false;
-  recognition.maxAlternatives = 5;
-  recognition.start();
-  recognition.onresult = function (event) {
-    console.log("You said: ", event.results[0][0].transcript);
-    setSpeech(event.results[0][0].transcript);
-  };
-  recognition.onerror = (event) => {
-    console.error("Speech recognition error:", event.error);
-    recognition.stop();
-  };
+  useEffect(() => {
+    const recognition = new (window.SpeechRecognition ||
+      window.webkitSpeechRecognition ||
+      window.mozSpeechRecognition ||
+      window.msSpeechRecognition)();
+    recognition.lang = "en-US";
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 5;
+    recognition.start();
+    recognition.onresult = function (event) {
+      console.log("You said: ", event.results[0][0].transcript);
+      setSpeech(event.results[0][0].transcript);
+    };
+    recognition.onerror = (event) => {
+      console.error("Speech recognition error:", event.error);
+      recognition.stop();
+    };
+  }, []);
 
   // faceapi logic
   const videoRef = useRef(null);
   const canvasRef = useRef();
   useEffect(() => {
-    Promise.all([
-      faceapi.nets.ssdMobilenetv1.loadFromUri("/models"),
-      faceapi.nets.faceRecognitionNet.loadFromUri("/models"),
-      faceapi.nets.faceLandmark68Net.loadFromUri("/models"),
-    ]).then(() => {
-      if (!stopVideoStream) {
+    if (!stopVideoStream) {
+      Promise.all([
+        faceapi.nets.ssdMobilenetv1.loadFromUri("/models"),
+        faceapi.nets.faceRecognitionNet.loadFromUri("/models"),
+        faceapi.nets.faceLandmark68Net.loadFromUri("/models"),
+      ]).then(() => {
         startWebcam();
-      }
-    }, []);
+      });
+    }
   });
   // open webcam
   function startWebcam() {
@@ -139,36 +148,6 @@ function Faceapi() {
       userGreeting(userName);
     }
   }, [stopVideoStream]);
-  // gpt voice chat
-  function startVoiceChat() {
-    // if (!isMicOpen) {
-    recognition.start();
-    setIsMicOpen(true);
-    recognition.onend = () => {
-      setIsMicOpen(false);
-      // };
-    };
-    if (speech) {
-      fetch("http://localhost:8000/gpt-chat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          message: speech,
-        }),
-      })
-        .then((response) => response.json())
-        .then((data) => window.responsiveVoice.speak(data, "US English Male"))
-        .catch((error) => console.error("Error:", error));
-    }
-  }
-  function closeVoiceChat() {
-    if (isMicOpen) {
-      recognition.stop();
-      setIsMicOpen(false);
-    }
-  }
   return (
     <div className="myapp">
       <div className="appvide">
@@ -183,12 +162,6 @@ function Faceapi() {
         ></video>
       </div>
       <canvas ref={canvasRef} width="750" height="450" className="appcanvas" />
-      {stopVideoStream ? (
-        <div>
-          <button onClick={startVoiceChat}> open mic</button>
-          <button onClick={closeVoiceChat}> close mic</button>
-        </div>
-      ) : null}
     </div>
   );
 }
