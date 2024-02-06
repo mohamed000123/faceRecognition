@@ -1,5 +1,16 @@
-import React, { useEffect, useRef, useState } from "react";
-const VoiceChat = () => {
+import React, { useEffect, useState } from "react";
+import LinearProgress from "@mui/material/LinearProgress";
+const VoiceChat = ({ userName }) => {
+  // greeting user
+  const userGreeting = (userName) => {
+    window.responsiveVoice.speak(
+      `hello ${userName} how can i assist you today ?`,
+      "US English Female"
+    );
+  };
+  useEffect(() => {
+    userGreeting(userName);
+  }, []);
   // gpt voice chat
   const [isMicOpen, setIsMicOpen] = useState(false);
   const [speech, setSpeech] = useState("");
@@ -37,19 +48,21 @@ const VoiceChat = () => {
     };
     recognition.onend = () => {
       setIsMicOpen(false);
-      // };
     };
-  }
-  function closeVoiceChat() {
-    if (isMicOpen) {
-      recognition.stop();
-      setIsMicOpen(false);
-    }
   }
   return (
     <div>
+      {isMicOpen ? (
+        <LinearProgress
+          style={{
+            width: "95%",
+            margin: "auto",
+            marginBottom: "10px",
+            height: "15px",
+          }}
+        />
+      ) : null}
       <button onClick={startVoiceChat}> ask</button>
-      {/* <button onClick={closeVoiceChat}> close mic</button> */}
       <h2>{speech}:</h2>
       <p>{gptAnswer}</p>
     </div>
