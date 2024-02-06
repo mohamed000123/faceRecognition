@@ -1,7 +1,7 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import "../App.css";
 import * as faceapi from "face-api.js";
-import LinearProgress from "@mui/material/LinearProgress";
+import { LinearProgress } from "@mui/material";
 
 function Faceapi({ setIsRecognised, setUserName }) {
   const [isVideoStarted, setIsVideoStarted] = useState(false);
