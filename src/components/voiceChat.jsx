@@ -1,22 +1,15 @@
 import React, { useEffect, useLayoutEffect, useState } from "react";
 import { LinearProgress } from "@mui/material";
+import { startStreaming } from "../helpers/audioStream";
 const VoiceChat = ({ userName }) => {
   // greeting user
-  const userGreeting = (userName) => {
-    window.responsiveVoice.speak(
-      `hello ${userName} how can i assist you today ?`,
-      "US English Female",
-      {
-        onend: () => {
-          setStart(true);
-          startVoiceChat();
-        },
-      }
-    );
+  const userGreeting = async () => {
+    await startStreaming(`hello ${userName}, how can i assist you today`);
+    setStart(true);
+    setTimeout(() => {
+      startVoiceChat();
+    }, 3000);
   };
-  useLayoutEffect(() => {
-    userGreeting(userName);
-  }, []);
   // gpt voice chat
   const [isMicOpen, setIsMicOpen] = useState(false);
   const [speech, setSpeech] = useState("");
@@ -45,8 +38,8 @@ const VoiceChat = ({ userName }) => {
         }),
       })
         .then((response) => response.json())
-        .then((data) => {
-          window.responsiveVoice.speak(data, "US English Male");
+        .then(async (data) => {
+          await startStreaming(data);
           setGptAnswer(data);
         })
         .catch((error) => console.error("Error:", error));
@@ -63,6 +56,15 @@ const VoiceChat = ({ userName }) => {
   }, []);
   return (
     <div>
+      {!start && (
+        <button
+          onClick={() => {
+            userGreeting("momo");
+          }}
+        >
+          say hello
+        </button>
+      )}
       {isMicOpen && start ? (
         <LinearProgress
           style={{
