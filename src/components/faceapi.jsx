@@ -31,24 +31,21 @@ function Faceapi({ setIsRecognised, setUserName }) {
   }, []);
 
   // catching record text
+  const recognition = new (window.SpeechRecognition ||
+    window.webkitSpeechRecognition ||
+    window.mozSpeechRecognition ||
+    window.msSpeechRecognition)();
   useEffect(() => {
-    const recognition = new (window.SpeechRecognition ||
-      window.webkitSpeechRecognition ||
-      window.mozSpeechRecognition ||
-      window.msSpeechRecognition)();
     if (isVideoStarted) {
       recognition.start();
     }
     recognition.onstart = () => {
       console.log("Microphone is open");
     };
-    recognition.onresult = function (event) {
-      console.log("You said: ", event.results[0][0].transcript);
-      setSpeech(event.results[0][0].transcript);
-    };
     recognition.onend = () => {
       if (speech === "hello") {
         console.log("Microphone is closed");
+        recognition.stop();
       } else {
         recognition.start();
       }
@@ -57,6 +54,12 @@ function Faceapi({ setIsRecognised, setUserName }) {
       console.error("Speech recognition error:", event.error);
     };
   }, [speech, isVideoStarted]);
+  useEffect(() => {
+    recognition.onresult = function (event) {
+      console.log("You said: ", event.results[0][0].transcript);
+      setSpeech(event.results[0][0].transcript);
+    };
+  });
 
   // faceapi logic
   useEffect(() => {

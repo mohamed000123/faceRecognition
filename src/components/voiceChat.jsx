@@ -1,32 +1,37 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import { LinearProgress } from "@mui/material";
 const VoiceChat = ({ userName }) => {
   // greeting user
   const userGreeting = (userName) => {
     window.responsiveVoice.speak(
       `hello ${userName} how can i assist you today ?`,
-      "US English Female"
+      "US English Female",
+      {
+        onend: () => {
+          setStart(true);
+          startVoiceChat();
+        },
+      }
     );
   };
-  useEffect(() => {
+  useLayoutEffect(() => {
     userGreeting(userName);
   }, []);
   // gpt voice chat
   const [isMicOpen, setIsMicOpen] = useState(false);
   const [speech, setSpeech] = useState("");
   const [gptAnswer, setGptAnswer] = useState("");
-  let recognition = new (window.SpeechRecognition ||
-    window.webkitSpeechRecognition ||
-    window.mozSpeechRecognition ||
-    window.msSpeechRecognition)();
-  recognition.lang = "en-US";
-  recognition.interimResults = false;
-  recognition.maxAlternatives = 5;
+  const [start, setStart] = useState(false);
   function startVoiceChat() {
-    console.log("startVoiceChat");
-    // if (!isMicOpen) {
+    let recognition = new (window.SpeechRecognition ||
+      window.webkitSpeechRecognition ||
+      window.mozSpeechRecognition ||
+      window.msSpeechRecognition)();
     recognition.start();
-    setIsMicOpen(true);
+    recognition.onstart = () => {
+      console.log("voice is on");
+      setIsMicOpen(true);
+    };
     recognition.onresult = function (event) {
       console.log("You said: ", event.results[0][0].transcript);
       setSpeech(event.results[0][0].transcript);
@@ -47,12 +52,18 @@ const VoiceChat = ({ userName }) => {
         .catch((error) => console.error("Error:", error));
     };
     recognition.onend = () => {
+      console.log("mic is closed");
       setIsMicOpen(false);
     };
   }
+  useEffect(() => {
+    setInterval(() => {
+      startVoiceChat();
+    }, 25000);
+  }, []);
   return (
     <div>
-      {isMicOpen ? (
+      {isMicOpen && start ? (
         <LinearProgress
           style={{
             width: "95%",
@@ -62,9 +73,12 @@ const VoiceChat = ({ userName }) => {
           }}
         />
       ) : null}
-      <button onClick={startVoiceChat}> ask</button>
-      <h2>{speech}:</h2>
-      <p>{gptAnswer}</p>
+      {start ? (
+        <>
+          <h2>{speech}:</h2>
+          <p>{gptAnswer}</p>
+        </>
+      ) : null}
     </div>
   );
 };
