@@ -41,7 +41,7 @@ const VoiceChat = ({ userName }) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          message: speech,
+          message: event.results[0][0].transcript,
         }),
       })
         .then((response) => response.json())

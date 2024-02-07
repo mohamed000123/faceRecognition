@@ -42,14 +42,14 @@ function Faceapi({ setIsRecognised, setUserName }) {
     recognition.onstart = () => {
       console.log("Microphone is open");
     };
-    recognition.onend = () => {
-      if (speech === "hello") {
-        console.log("Microphone is closed");
-        recognition.stop();
-      } else {
-        recognition.start();
-      }
-    };
+    // recognition.onend = () => {
+    //   if (speech === "hello") {
+    //     console.log("Microphone is closed");
+    //     recognition.stop();
+    //   } else {
+    //     recognition.start();
+    //   }
+    // };
     recognition.onerror = (event) => {
       console.error("Speech recognition error:", event.error);
     };
