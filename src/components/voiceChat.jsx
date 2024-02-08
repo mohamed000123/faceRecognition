@@ -1,6 +1,7 @@
 import React, { useEffect, useLayoutEffect, useState } from "react";
 import { LinearProgress } from "@mui/material";
 import { startStreaming } from "../helpers/audioStream";
+import "../App.css";
 const VoiceChat = ({ userName }) => {
   // greeting user
   const userGreeting = async () => {
@@ -8,7 +9,7 @@ const VoiceChat = ({ userName }) => {
     setStart(true);
     setTimeout(() => {
       startVoiceChat();
-    }, 3000);
+    }, 4000);
   };
   // gpt voice chat
   const [isMicOpen, setIsMicOpen] = useState(false);
@@ -50,20 +51,21 @@ const VoiceChat = ({ userName }) => {
     };
   }
   useEffect(() => {
-    setInterval(() => {
-      startVoiceChat();
-    }, 25000);
-  }, []);
+    if (start) {
+      setInterval(() => {
+        startVoiceChat();
+      }, 20000);
+    }
+  }, [start]);
   return (
     <div>
       {!start && (
-        <button
-          onClick={() => {
-            userGreeting("momo");
-          }}
-        >
-          say hello
-        </button>
+        <div className="overlay">
+          <div className="overlay-content">
+            <p>Please give us permission to access mic .</p>
+            <button onClick={userGreeting}>Grant Permission</button>
+          </div>
+        </div>
       )}
       {isMicOpen && start ? (
         <LinearProgress
