@@ -2,14 +2,25 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import "../App.css";
 import * as faceapi from "face-api.js";
 import { LinearProgress } from "@mui/material";
-
+import SpeechRecognition, {
+  useSpeechRecognition,
+} from "react-speech-recognition";
 function Faceapi({ setIsRecognised, setUserName }) {
+  // state
   const [isVideoStarted, setIsVideoStarted] = useState(false);
   const [isFinishedRecognition, setIsFinishedRecognition] = useState(false);
-  const [speech, setSpeech] = useState("");
   const videoRef = useRef(null);
   const canvasRef = useRef();
-
+  // mic
+  const { transcript } = useSpeechRecognition();
+  useEffect(() => {
+    console.log("you said:", transcript);
+    if (!transcript.includes("hello")) {
+      SpeechRecognition.startListening({ continuous: true });
+    } else {
+      SpeechRecognition.stopListening();
+    }
+  }, [transcript]);
   // open webcam
   function startWebcam() {
     navigator.mediaDevices
@@ -30,37 +41,6 @@ function Faceapi({ setIsRecognised, setUserName }) {
     startWebcam();
   }, []);
 
-  // catching record text
-  const recognition = new (window.SpeechRecognition ||
-    window.webkitSpeechRecognition ||
-    window.mozSpeechRecognition ||
-    window.msSpeechRecognition)();
-  useEffect(() => {
-    if (isVideoStarted) {
-      recognition.start();
-    }
-    recognition.onstart = () => {
-      console.log("Microphone is open");
-    };
-    // recognition.onend = () => {
-    //   if (speech === "hello") {
-    //     console.log("Microphone is closed");
-    //     recognition.stop();
-    //   } else {
-    //     recognition.start();
-    //   }
-    // };
-    recognition.onerror = (event) => {
-      console.error("Speech recognition error:", event.error);
-    };
-  }, [speech, isVideoStarted]);
-  useEffect(() => {
-    recognition.onresult = function (event) {
-      console.log("You said: ", event.results[0][0].transcript);
-      setSpeech(event.results[0][0].transcript);
-    };
-  });
-
   // faceapi logic
   useEffect(() => {
     if (!isFinishedRecognition) {
@@ -69,7 +49,7 @@ function Faceapi({ setIsRecognised, setUserName }) {
         faceapi.nets.faceRecognitionNet.loadFromUri("/models"),
         faceapi.nets.faceLandmark68Net.loadFromUri("/models"),
       ]).then(() => {
-        if (speech === "hello") {
+        if (transcript.includes("hello")) {
           startFaceRecognition();
         }
       });
@@ -79,7 +59,7 @@ function Faceapi({ setIsRecognised, setUserName }) {
         setIsRecognised(true);
       }, [1500]);
     }
-  }, [isFinishedRecognition, speech]);
+  }, [isFinishedRecognition, transcript]);
 
   function getLabeledFaceDescriptions() {
     const labels = ["Messi", "Amin"];
