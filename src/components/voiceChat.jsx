@@ -1,15 +1,42 @@
 import React, { useEffect, useLayoutEffect, useState } from "react";
 import { LinearProgress } from "@mui/material";
-import { startStreaming } from "../helpers/audioStream";
+import { startStreaming } from "../helpers/elevenLabs";
 import "../App.css";
 const VoiceChat = ({ userName }) => {
+  let userJob;
+  if (
+    userName === "Amin" ||
+    userName === "Mohsen" ||
+    userName === "Mostafa youssef"
+  ) {
+    userJob = "developer";
+  } else if (userName === "Mostafa Ali" || userName === "Gehad") {
+    userJob = "business developer";
+  } else {
+    userJob = "مبرمج";
+    userName = "محمد";
+  }
   // greeting user
   const userGreeting = async () => {
-    await startStreaming(`hello ${userName}, how can i assist you today`);
     setStart(true);
-    setTimeout(() => {
-      startVoiceChat();
-    }, 4000);
+    fetch("http://localhost:8000/user-greeting", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userName: userName,
+        userJob: userJob,
+      }),
+    })
+      .then((response) => response.json())
+      .then(async (data) => {
+        await startStreaming(data);
+        setTimeout(() => {
+          startVoiceChat();
+        }, 4000);
+      })
+      .catch((error) => console.error("Error:", error));
   };
   // gpt voice chat
   const [isMicOpen, setIsMicOpen] = useState(false);
@@ -21,6 +48,7 @@ const VoiceChat = ({ userName }) => {
       window.webkitSpeechRecognition ||
       window.mozSpeechRecognition ||
       window.msSpeechRecognition)();
+    recognition.lang = "ar-EG";
     recognition.start();
     recognition.onstart = () => {
       console.log("voice is on");
