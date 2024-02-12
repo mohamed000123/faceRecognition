@@ -2,6 +2,7 @@ import React, { useEffect, useLayoutEffect, useState } from "react";
 import { LinearProgress } from "@mui/material";
 import { startStreaming } from "../helpers/elevenLabs";
 import "../App.css";
+import ClipLoader from "react-spinners/ClipLoader";
 const VoiceChat = ({ userName }) => {
   let userJob;
   if (
@@ -18,7 +19,6 @@ const VoiceChat = ({ userName }) => {
   }
   // greeting user
   const userGreeting = async () => {
-    setStart(true);
     fetch("http://localhost:8000/user-greeting", {
       method: "POST",
       headers: {
@@ -32,6 +32,8 @@ const VoiceChat = ({ userName }) => {
       .then((response) => response.json())
       .then(async (data) => {
         await startStreaming(data);
+        setGptAnswer(data);
+        setStart(true);
         setTimeout(() => {
           startVoiceChat();
         }, 4000);
@@ -43,6 +45,7 @@ const VoiceChat = ({ userName }) => {
   const [speech, setSpeech] = useState("");
   const [gptAnswer, setGptAnswer] = useState("");
   const [start, setStart] = useState(false);
+  const [isLoading, setIsLoading] = useState("");
   function startVoiceChat() {
     let recognition = new (window.SpeechRecognition ||
       window.webkitSpeechRecognition ||
@@ -57,6 +60,7 @@ const VoiceChat = ({ userName }) => {
     recognition.onresult = function (event) {
       console.log("You said: ", event.results[0][0].transcript);
       setSpeech(event.results[0][0].transcript);
+      setIsLoading(true);
       fetch("http://localhost:8000/gpt-chat", {
         method: "POST",
         headers: {
@@ -70,6 +74,7 @@ const VoiceChat = ({ userName }) => {
         .then(async (data) => {
           await startStreaming(data);
           setGptAnswer(data);
+          setIsLoading(false);
         })
         .catch((error) => console.error("Error:", error));
     };
@@ -81,12 +86,23 @@ const VoiceChat = ({ userName }) => {
   useEffect(() => {
     if (start) {
       setInterval(() => {
-        startVoiceChat();
+        if (!isLoading) {
+          startVoiceChat();
+        }
       }, 20000);
     }
   }, [start]);
   return (
     <div>
+      <div className="sweet-loading">
+        <ClipLoader
+          color="blue"
+          loading={isLoading}
+          size={150}
+          aria-label="Loading Spinner"
+          data-testid="loader"
+        />
+      </div>
       {!start && (
         <div className="overlay">
           <div className="overlay-content">
@@ -100,7 +116,7 @@ const VoiceChat = ({ userName }) => {
       {start && (
         <>
           <div className="text">
-            <h2>Question:{speech}</h2>
+            <h2>{speech}:</h2>
             <p>{gptAnswer}</p>
           </div>
         </>
@@ -114,7 +130,7 @@ const VoiceChat = ({ userName }) => {
               height="100%"
             ></img>
             <div>
-              <h2>you can speak now</h2>
+              <h1>you can speak now</h1>
               <LinearProgress
                 style={{
                   width: "100%",

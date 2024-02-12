@@ -62,11 +62,18 @@ function Faceapi({ setIsRecognised, setUserName }) {
   }, [isFinishedRecognition, transcript]);
 
   function getLabeledFaceDescriptions() {
-    const labels = ["Messi", "Amin"];
+    const labels = [
+      "Amin",
+      "Gehad",
+      "Messi",
+      "Mohsen",
+      "Mostafa Ali",
+      "Mostafa youssef",
+    ];
     return Promise.all(
       labels.map(async (label) => {
         const descriptions = [];
-        for (let i = 1; i <= 2; i++) {
+        for (let i = 1; i <= 3; i++) {
           const img = await faceapi.fetchImage(
             require(`../labels/${label}/${i}.jpg`)
           );
