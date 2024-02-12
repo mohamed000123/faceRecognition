@@ -9,8 +9,6 @@
 
 .myapp {
   display: flex;
-  /* width: 100vw;
-  height: 100vh; */
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
@@ -34,4 +32,14 @@
   padding: 20px;
   border-radius: 8px;
   text-align: center;
+}
+
+.mic {
+  display: flex;
+  height: 20vh;
+  margin-bottom: 10vh;
+}
+
+.text {
+  height: 60vh;
 }

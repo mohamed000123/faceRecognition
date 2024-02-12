@@ -90,25 +90,39 @@ const VoiceChat = ({ userName }) => {
       {!start && (
         <div className="overlay">
           <div className="overlay-content">
-            <p>Please give us permission to access mic .</p>
-            <button onClick={userGreeting}>Grant Permission</button>
+            <h2>Please give us permission to access mic </h2>
+            <button style={{ cursor: "pointer" }} onClick={userGreeting}>
+              <p>Grant Permission</p>
+            </button>
           </div>
         </div>
       )}
-      {isMicOpen && start ? (
-        <LinearProgress
-          style={{
-            width: "95%",
-            margin: "auto",
-            marginBottom: "10px",
-            height: "15px",
-          }}
-        />
-      ) : null}
-      {start ? (
+      {start && (
         <>
-          <h2>{speech}:</h2>
-          <p>{gptAnswer}</p>
+          <div className="text">
+            <h2>Question:{speech}</h2>
+            <p>{gptAnswer}</p>
+          </div>
+        </>
+      )}
+      {isMicOpen && start ? (
+        <>
+          <div className="mic">
+            <img
+              src={require("../assets/mic.png")}
+              width="100"
+              height="100%"
+            ></img>
+            <div>
+              <h2>you can speak now</h2>
+              <LinearProgress
+                style={{
+                  width: "100%",
+                  height: "15px",
+                }}
+              />
+            </div>
+          </div>
         </>
       ) : null}
     </div>
