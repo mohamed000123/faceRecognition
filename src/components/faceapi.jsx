@@ -1,7 +1,8 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "../App.css";
 import * as faceapi from "face-api.js";
 import { LinearProgress } from "@mui/material";
+import ClipLoader from "react-spinners/ClipLoader";
 import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
@@ -11,6 +12,7 @@ function Faceapi({ setIsRecognised, setUserName }) {
   const [isFinishedRecognition, setIsFinishedRecognition] = useState(false);
   const videoRef = useRef(null);
   const canvasRef = useRef();
+  const [isLoading, setIsLoading] = useState(false);
   // mic
   const { transcript } = useSpeechRecognition();
   useEffect(() => {
@@ -18,6 +20,7 @@ function Faceapi({ setIsRecognised, setUserName }) {
     if (!transcript.includes("hello")) {
       SpeechRecognition.startListening({ continuous: true });
     } else {
+      setIsLoading(true);
       SpeechRecognition.stopListening();
     }
   }, [transcript]);
@@ -115,6 +118,7 @@ function Faceapi({ setIsRecognised, setUserName }) {
         const drawBox = new faceapi.draw.DrawBox(box, {
           label: result,
         });
+        setIsLoading(false);
         drawBox.draw(canvasRef.current);
         if (result.label !== "unknown") {
           setUserName(result.label);
@@ -139,7 +143,16 @@ function Faceapi({ setIsRecognised, setUserName }) {
   };
   return (
     <>
-      {isVideoStarted ? (
+      <div className="sweet-loading">
+        <ClipLoader
+          color="blue"
+          loading={isLoading}
+          size={150}
+          aria-label="Loading Spinner"
+          data-testid="loader"
+        />
+      </div>
+      {isVideoStarted && !isLoading && !isFinishedRecognition ? (
         <>
           <LinearProgress
             style={{
