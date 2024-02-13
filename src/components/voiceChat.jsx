@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { LinearProgress } from "@mui/material";
 import { startStreaming } from "../helpers/elevenLabs";
 import "../App.css";
@@ -10,15 +10,16 @@ const VoiceChat = ({ userName }) => {
     userName === "Mohsen" ||
     userName === "Mostafa youssef"
   ) {
-    userJob = "developer";
+    userJob = "مطور برمجيات";
   } else if (userName === "Mostafa Ali" || userName === "Gehad") {
-    userJob = "business developer";
+    userJob = "مطور اعمال";
   } else {
-    userJob = "مبرمج";
+    userJob = "مطور برمجيات";
     userName = "محمد";
   }
   // greeting user
   const userGreeting = async () => {
+    setIsApproved(true);
     fetch("http://localhost:8000/user-greeting", {
       method: "POST",
       headers: {
@@ -36,7 +37,7 @@ const VoiceChat = ({ userName }) => {
         setStart(true);
         setTimeout(() => {
           startVoiceChat();
-        }, 4000);
+        }, 5000);
       })
       .catch((error) => console.error("Error:", error));
   };
@@ -45,6 +46,7 @@ const VoiceChat = ({ userName }) => {
   const [speech, setSpeech] = useState("");
   const [gptAnswer, setGptAnswer] = useState("");
   const [start, setStart] = useState(false);
+  const [isApproved, setIsApproved] = useState(false);
   const [isLoading, setIsLoading] = useState("");
   function startVoiceChat() {
     let recognition = new (window.SpeechRecognition ||
@@ -103,7 +105,7 @@ const VoiceChat = ({ userName }) => {
           data-testid="loader"
         />
       </div>
-      {!start && (
+      {!isApproved && (
         <div className="overlay">
           <div className="overlay-content">
             <h2>Please give us permission to access mic </h2>
