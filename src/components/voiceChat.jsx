@@ -20,6 +20,7 @@ const VoiceChat = ({ userName }) => {
   // greeting user
   const [isApproved, setIsApproved] = useState(false);
   const [isLoading, setIsLoading] = useState("");
+  const [isPlayingAudio, setIsPlayingAudio] = useState("");
   const userGreeting = async () => {
     setIsApproved(true);
     setIsLoading(true);
@@ -35,7 +36,16 @@ const VoiceChat = ({ userName }) => {
     })
       .then((response) => response.json())
       .then(async (data) => {
-        await startStreaming(data);
+        const audio = await startStreaming(data);
+        await audio.play();
+        audio.addEventListener("timeupdate", () => {
+          console.log("playing");
+          setIsPlayingAudio(true);
+        });
+        audio.addEventListener("ended", () => {
+          console.log("done playing");
+          setIsPlayingAudio(false);
+        });
         setIsLoading(false);
         setGptAnswer(data);
         setStart(true);
@@ -65,6 +75,7 @@ const VoiceChat = ({ userName }) => {
       console.log("You said: ", event.results[0][0].transcript);
       setSpeech(event.results[0][0].transcript);
       setIsLoading(true);
+      setIsPlayingAudio(true);
       fetch("http://localhost:8000/gpt-chat", {
         method: "POST",
         headers: {
@@ -76,7 +87,12 @@ const VoiceChat = ({ userName }) => {
       })
         .then((response) => response.json())
         .then(async (data) => {
-          await startStreaming(data);
+          const audio = await startStreaming(data);
+          await audio.play();
+          audio.addEventListener("ended", () => {
+            console.log("done playing");
+            setIsPlayingAudio(false);
+          });
           setGptAnswer(data);
           setIsLoading(false);
         })
@@ -90,7 +106,7 @@ const VoiceChat = ({ userName }) => {
   useEffect(() => {
     if (start) {
       setInterval(() => {
-        if (!isLoading) {
+        if (!isLoading && !isPlayingAudio) {
           startVoiceChat();
         }
       }, 20000);
@@ -125,7 +141,7 @@ const VoiceChat = ({ userName }) => {
           </div>
         </>
       )}
-      {isMicOpen && start ? (
+      {isMicOpen && start && !isPlayingAudio ? (
         <>
           <div className="mic">
             <img
@@ -134,7 +150,7 @@ const VoiceChat = ({ userName }) => {
               height="100%"
             ></img>
             <div>
-              <h1>you can speak now</h1>
+              <h1>يمكنك التحدث الان</h1>
               <LinearProgress
                 style={{
                   width: "100%",

@@ -1,6 +1,7 @@
 import axios from "axios";
 const voiceId = "21m00Tcm4TlvDq8ikWAM";
-const apiKey = "71788341538a69e2a3126529483e3ccc";
+// const apiKey = "68fb2c04c7edbd9c65c65d995b7f3c67";
+const apiKey = "4a83a293ddb3541c429502dd15f09ada";
 const voiceSettings = {
   stability: 0.5,
   similarity_boost: 0.8,
@@ -26,7 +27,7 @@ export const startStreaming = async (text) => {
 
     if (response.status === 200) {
       const audio = new Audio(URL.createObjectURL(response.data));
-      audio.play();
+      return audio;
     } else {
       console.log("Error: Unable to stream audio.");
     }
