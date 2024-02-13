@@ -18,8 +18,11 @@ const VoiceChat = ({ userName }) => {
     userName = "محمد";
   }
   // greeting user
+  const [isApproved, setIsApproved] = useState(false);
+  const [isLoading, setIsLoading] = useState("");
   const userGreeting = async () => {
     setIsApproved(true);
+    setIsLoading(true);
     fetch("http://localhost:8000/user-greeting", {
       method: "POST",
       headers: {
@@ -33,6 +36,7 @@ const VoiceChat = ({ userName }) => {
       .then((response) => response.json())
       .then(async (data) => {
         await startStreaming(data);
+        setIsLoading(false);
         setGptAnswer(data);
         setStart(true);
         setTimeout(() => {
@@ -46,8 +50,6 @@ const VoiceChat = ({ userName }) => {
   const [speech, setSpeech] = useState("");
   const [gptAnswer, setGptAnswer] = useState("");
   const [start, setStart] = useState(false);
-  const [isApproved, setIsApproved] = useState(false);
-  const [isLoading, setIsLoading] = useState("");
   function startVoiceChat() {
     let recognition = new (window.SpeechRecognition ||
       window.webkitSpeechRecognition ||
