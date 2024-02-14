@@ -65,14 +65,7 @@ function Faceapi({ setIsRecognised, setUserName }) {
   }, [isFinishedRecognition, transcript]);
 
   function getLabeledFaceDescriptions() {
-    const labels = [
-      "Amin",
-      "Gehad",
-      "Messi",
-      "Mohsen",
-      "Mostafa Ali",
-      "Mostafa youssef",
-    ];
+    const labels = ["Amin", "Gehad", "Messi", "Mostafa Ali", "Mostafa youssef"];
     return Promise.all(
       labels.map(async (label) => {
         const descriptions = [];

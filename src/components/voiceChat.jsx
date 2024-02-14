@@ -5,11 +5,7 @@ import "../App.css";
 import ClipLoader from "react-spinners/ClipLoader";
 const VoiceChat = ({ userName }) => {
   let userJob;
-  if (
-    userName === "Amin" ||
-    userName === "Mohsen" ||
-    userName === "Mostafa youssef"
-  ) {
+  if (userName === "Amin" || userName === "Mostafa youssef") {
     userJob = "مطور برمجيات";
   } else if (userName === "Mostafa Ali" || userName === "Gehad") {
     userJob = "مطور اعمال";
@@ -50,7 +46,10 @@ const VoiceChat = ({ userName }) => {
         setGptAnswer(data);
         setStart(true);
         setTimeout(() => {
-          startVoiceChat();
+          setCount(5);
+          setTimeout(() => {
+            startVoiceChat();
+          }, 5000);
         }, 5000);
       })
       .catch((error) => console.error("Error:", error));
@@ -107,61 +106,100 @@ const VoiceChat = ({ userName }) => {
     if (start) {
       setInterval(() => {
         if (!isLoading && !isPlayingAudio) {
-          startVoiceChat();
+          setTimeout(() => {
+            setCount(5);
+            setTimeout(() => {
+              startVoiceChat();
+            }, 5000);
+          }, 5000);
         }
       }, 20000);
     }
   }, [start]);
+  // Countdown
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    if (count > 0) {
+      const timer = setInterval(() => {
+        setCount((prevCount) => prevCount - 1);
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [count]);
   return (
-    <div>
-      <div className="sweet-loading">
-        <ClipLoader
-          color="blue"
-          loading={isLoading}
-          size={150}
-          aria-label="Loading Spinner"
-          data-testid="loader"
-        />
-      </div>
+    <>
       {!isApproved && (
         <div className="overlay">
           <div className="overlay-content">
-            <h2>Please give us permission to access mic </h2>
+            <h2
+              style={{
+                color: "black",
+              }}
+            >
+              Please give us permission to access mic
+            </h2>
             <button style={{ cursor: "pointer" }} onClick={userGreeting}>
-              <p>Grant Permission</p>
+              <p
+                style={{
+                  color: "black",
+                }}
+              >
+                Grant Permission
+              </p>
             </button>
           </div>
         </div>
       )}
-      {start && (
-        <>
-          <div className="text">
-            <h2>{speech}:</h2>
-            <p>{gptAnswer}</p>
-          </div>
-        </>
-      )}
-      {isMicOpen && start && !isPlayingAudio ? (
-        <>
-          <div className="mic">
-            <img
-              src={require("../assets/mic.png")}
-              width="100"
-              height="100%"
-            ></img>
-            <div>
-              <h1>يمكنك التحدث الان</h1>
-              <LinearProgress
-                style={{
-                  width: "100%",
-                  height: "15px",
-                }}
+      {isApproved && (
+        <div className="video-background">
+          <video autoPlay loop muted>
+            <source src={require("../assets/video.mp4")} type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+          <div className="content">
+            <div className="sweet-loading">
+              <ClipLoader
+                color="blue"
+                loading={isLoading}
+                size={150}
+                aria-label="Loading Spinner"
+                data-testid="loader"
               />
             </div>
+            {start && (
+              <>
+                <div className="text">
+                  <h2>{speech}:</h2>
+                  <h3>{gptAnswer}</h3>
+                </div>
+              </>
+            )}
+            <div>{count !== 0 ? <h1>Countdown: {count}</h1> : null}</div>
+            {isMicOpen && start && !isPlayingAudio ? (
+              <>
+                <div className="mic">
+                  <img
+                    src={require("../assets/mic.png")}
+                    width="100"
+                    height="100%"
+                  ></img>
+                  <div>
+                    <h1>يمكنك التحدث الان</h1>
+                    <LinearProgress
+                      style={{
+                        width: "100%",
+                        height: "15px",
+                      }}
+                    />
+                  </div>
+                </div>
+              </>
+            ) : null}
           </div>
-        </>
-      ) : null}
-    </div>
+        </div>
+      )}
+    </>
   );
 };
 
