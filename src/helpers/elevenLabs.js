@@ -1,16 +1,22 @@
 import axios from "axios";
-const voiceId = "21m00Tcm4TlvDq8ikWAM";
 // const apiKey = "68fb2c04c7edbd9c65c65d995b7f3c67";
-const apiKey = "4a83a293ddb3541c429502dd15f09ada";
+// const apiKey = "4a83a293ddb3541c429502dd15f09ada";
 const voiceSettings = {
-  stability: 0.5,
-  similarity_boost: 0.8,
+  stability: 1,
+  similarity_boost: 1,
 };
-export const startStreaming = async (text) => {
+
+export const startStreaming = async (text, key, gender) => {
+  let voiceId;
+  if (gender === "male") {
+    voiceId = "5Q0t7uMcjvnagumLfvZi";
+  } else if (gender === "female") {
+    voiceId = "EXAVITQu4vr4xnSDxMaL";
+  }
   const baseUrl = "https://api.elevenlabs.io/v1/text-to-speech";
   const headers = {
     "Content-Type": "application/json",
-    "xi-api-key": apiKey,
+    "xi-api-key": key,
   };
 
   const requestBody = {

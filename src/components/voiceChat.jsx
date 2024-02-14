@@ -13,6 +13,19 @@ const VoiceChat = ({ userName }) => {
     userJob = "مطور برمجيات";
     userName = "محمد";
   }
+  const [elevenKey, setElevenKey] = useState(
+    "4a83a293ddb3541c429502dd15f09ada"
+  );
+  const [gender, setGender] = useState("male");
+  useEffect(() => {
+    const elevenKey = localStorage.getItem("elevenKey");
+    if (elevenKey && elevenKey.length > 0) {
+      setElevenKey(elevenKey);
+    }
+    if (localStorage.getItem("gender")) {
+      setGender(localStorage.getItem("gender"));
+    }
+  }, []);
   // greeting user
   const [isApproved, setIsApproved] = useState(false);
   const [isLoading, setIsLoading] = useState("");
@@ -32,7 +45,7 @@ const VoiceChat = ({ userName }) => {
     })
       .then((response) => response.json())
       .then(async (data) => {
-        const audio = await startStreaming(data);
+        const audio = await startStreaming(data, elevenKey, gender);
         await audio.play();
         audio.addEventListener("timeupdate", () => {
           console.log("playing");
@@ -86,7 +99,7 @@ const VoiceChat = ({ userName }) => {
       })
         .then((response) => response.json())
         .then(async (data) => {
-          const audio = await startStreaming(data);
+          const audio = await startStreaming(data, elevenKey, gender);
           await audio.play();
           audio.addEventListener("ended", () => {
             console.log("done playing");
