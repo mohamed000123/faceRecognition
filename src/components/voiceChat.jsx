@@ -132,21 +132,9 @@ const VoiceChat = ({ userName }) => {
       {!isApproved && (
         <div className="overlay">
           <div className="overlay-content">
-            <h2
-              style={{
-                color: "black",
-              }}
-            >
-              Please give us permission to access mic
-            </h2>
+            <h2>Please give us permission to access mic</h2>
             <button style={{ cursor: "pointer" }} onClick={userGreeting}>
-              <p
-                style={{
-                  color: "black",
-                }}
-              >
-                Grant Permission
-              </p>
+              <p>Grant Permission</p>
             </button>
           </div>
         </div>
@@ -170,12 +158,16 @@ const VoiceChat = ({ userName }) => {
             {start && (
               <>
                 <div className="text">
-                  <h2>{speech}:</h2>
-                  <h3>{gptAnswer}</h3>
+                  <h2 style={{ color: "white" }}>{speech}:</h2>
+                  <h3 style={{ color: "white" }}>{gptAnswer}</h3>
                 </div>
               </>
             )}
-            <div>{count !== 0 ? <h1>Countdown: {count}</h1> : null}</div>
+            <div>
+              {count !== 0 ? (
+                <h1 style={{ color: "white" }}>Countdown: {count}</h1>
+              ) : null}
+            </div>
             {isMicOpen && start && !isPlayingAudio ? (
               <>
                 <div className="mic">
@@ -185,7 +177,7 @@ const VoiceChat = ({ userName }) => {
                     height="100%"
                   ></img>
                   <div>
-                    <h1>يمكنك التحدث الان</h1>
+                    <h1 style={{ color: "white" }}>يمكنك التحدث الان</h1>
                     <LinearProgress
                       style={{
                         width: "100%",

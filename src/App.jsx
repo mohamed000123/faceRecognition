@@ -1,16 +1,23 @@
-import React, { useState } from "react";
-import Faceapi from "./components/faceapi";
-import VoiceChat from "./components/voiceChat";
+import React from "react";
+import Home from "./pages/home";
+import DashBoard from "./pages/dashBoard";
+// routing
+import {
+  createBrowserRouter,
+  createRoutesFromElements,
+  Route,
+  RouterProvider,
+} from "react-router-dom";
+const appRouter = createBrowserRouter(
+  createRoutesFromElements(
+    <>
+      <Route path="/" element={<Home />} />
+      <Route path="/admin" element={<DashBoard />} />
+    </>
+  )
+);
 function App() {
-  const [isRecognised, setIsRecognised] = useState(false);
-  const [userName, setUserName] = useState("");
-  // if (isRecognised) {
-  return <VoiceChat userName={userName} />;
-  // } else {
-  //   return (
-  //     <Faceapi setIsRecognised={setIsRecognised} setUserName={setUserName} />
-  //   );
-  // }
+  return <RouterProvider router={appRouter} />;
 }
 
 export default App;

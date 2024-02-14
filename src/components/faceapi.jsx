@@ -155,7 +155,7 @@ function Faceapi({ setIsRecognised, setUserName }) {
               height: "15px",
             }}
           />
-          <h2>say hello to start</h2>
+          <h2 style={{ color: "black" }}>say hello to start</h2>
         </>
       ) : null}
       <div className="myapp">
