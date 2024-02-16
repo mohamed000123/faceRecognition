@@ -33,7 +33,7 @@ const VoiceChat = ({ userName }) => {
   const userGreeting = async () => {
     setIsApproved(true);
     setIsLoading(true);
-    fetch("http://localhost:8000/user-greeting", {
+    fetch("https://ai-robot-api.shutterstudio.io/user-greeting", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -88,7 +88,7 @@ const VoiceChat = ({ userName }) => {
       setSpeech(event.results[0][0].transcript);
       setIsLoading(true);
       setIsPlayingAudio(true);
-      fetch("http://localhost:8000/gpt-chat", {
+      fetch("https://ai-robot-api.shutterstudio.io/gpt-chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
