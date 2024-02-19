@@ -13,18 +13,16 @@ const VoiceChat = ({ userName }) => {
     userJob = "مطور برمجيات";
     userName = "محمد";
   }
-  const [elevenKey, setElevenKey] = useState(
-    "4a83a293ddb3541c429502dd15f09ada"
-  );
-  const [gender, setGender] = useState("male");
+  // eleven data
+  const [elevenKey, setElevenKey] = useState("");
+  const [gender, setGender] = useState("");
   useEffect(() => {
-    const elevenKey = localStorage.getItem("elevenKey");
-    if (elevenKey && elevenKey.length > 0) {
-      setElevenKey(elevenKey);
-    }
-    if (localStorage.getItem("gender")) {
-      setGender(localStorage.getItem("gender"));
-    }
+    fetch("http://localhost:8000/eleven/config")
+      .then((response) => response.json())
+      .then(async (data) => {
+        setElevenKey(data.elevenKey);
+        setGender(data.readerGender);
+      });
   }, []);
   // greeting user
   const [isApproved, setIsApproved] = useState(false);
