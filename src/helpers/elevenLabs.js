@@ -1,6 +1,4 @@
 import axios from "axios";
-// const apiKey = "68fb2c04c7edbd9c65c65d995b7f3c67";
-// const apiKey = "4a83a293ddb3541c429502dd15f09ada";
 const voiceSettings = {
   stability: 1,
   similarity_boost: 1,
