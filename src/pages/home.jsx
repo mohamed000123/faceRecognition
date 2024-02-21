@@ -4,13 +4,11 @@ import VoiceChat from "../components/voiceChat";
 
 const Home = () => {
   const [isRecognised, setIsRecognised] = useState(false);
-  const [userName, setUserName] = useState("");
+  const [user, setUser] = useState("");
   if (isRecognised) {
-    return <VoiceChat userName={userName} />;
+    return <VoiceChat user={user} />;
   } else {
-    return (
-      <Faceapi setIsRecognised={setIsRecognised} setUserName={setUserName} />
-    );
+    return <Faceapi setIsRecognised={setIsRecognised} setUser={setUser} />;
   }
 };
 export default Home;

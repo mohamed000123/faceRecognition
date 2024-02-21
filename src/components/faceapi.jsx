@@ -6,13 +6,22 @@ import ClipLoader from "react-spinners/ClipLoader";
 import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
-function Faceapi({ setIsRecognised, setUserName }) {
+function Faceapi({ setIsRecognised, setUser }) {
   // state
   const [isVideoStarted, setIsVideoStarted] = useState(false);
   const [isFinishedRecognition, setIsFinishedRecognition] = useState(false);
   const videoRef = useRef(null);
   const canvasRef = useRef();
   const [isLoading, setIsLoading] = useState(false);
+  const [users, setUsers] = useState([]);
+  //get user data
+  useEffect(() => {
+    fetch("http://localhost:8000/all-users")
+      .then((response) => response.json())
+      .then(async (data) => {
+        setUsers(data);
+      });
+  }, []);
   // mic
   const { transcript } = useSpeechRecognition();
   useEffect(() => {
@@ -65,20 +74,16 @@ function Faceapi({ setIsRecognised, setUserName }) {
   }, [isFinishedRecognition, transcript]);
 
   function getLabeledFaceDescriptions() {
-    const labels = [
-      "Amin",
-      "Gehad",
-      "Messi",
-      "Mostafa Ali",
-      "Mostafa youssef",
-      "Doaa",
-    ];
+    let labels = [];
+    for (let i = 0; i < users.length; i++) {
+      labels.push(users[i].name);
+    }
     return Promise.all(
       labels.map(async (label) => {
         const descriptions = [];
         for (let i = 1; i <= 3; i++) {
           const img = await faceapi.fetchImage(
-            require(`../labels/${label}/${i}.jpg`)
+            `http://localhost:8000/uploads/${label}/${i}.jpg`
           );
           const detections = await faceapi
             .detectSingleFace(img)
@@ -121,7 +126,10 @@ function Faceapi({ setIsRecognised, setUserName }) {
         setIsLoading(false);
         drawBox.draw(canvasRef.current);
         if (result.label !== "unknown") {
-          setUserName(result.label);
+          const user = users.filter((user) => {
+            return user.name === result.label;
+          });
+          setUser({ name: user[0].name, job: user[0].job });
           setIsFinishedRecognition(true);
           clearInterval(recognitionInterval);
         }

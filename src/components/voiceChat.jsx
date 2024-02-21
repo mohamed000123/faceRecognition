@@ -3,16 +3,7 @@ import { LinearProgress } from "@mui/material";
 import { startStreaming } from "../helpers/elevenLabs";
 import "../App.css";
 import ClipLoader from "react-spinners/ClipLoader";
-const VoiceChat = ({ userName }) => {
-  let userJob;
-  if (userName === "Amin" || userName === "Mostafa youssef") {
-    userJob = "مطور برمجيات";
-  } else if (userName === "Mostafa Ali" || userName === "Gehad") {
-    userJob = "مطور اعمال";
-  } else {
-    userJob = "مطور برمجيات";
-    userName = "محمد";
-  }
+const VoiceChat = ({ user }) => {
   // eleven data
   const [elevenKey, setElevenKey] = useState("");
   const [gender, setGender] = useState("");
@@ -37,8 +28,8 @@ const VoiceChat = ({ userName }) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        userName: userName,
-        userJob: userJob,
+        userName: user.name,
+        userJob: user.job,
       }),
     })
       .then((response) => response.json())
